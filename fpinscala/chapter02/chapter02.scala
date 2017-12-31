@@ -1,5 +1,4 @@
-package chapter02
-object chapter02 {
+package object chapter02 {
 
   /**
     * Exercise 2.1: Tail recursive function to find nth Fibbonacci number (where the 0th term is 0 & 1st term is 1)
