@@ -1,11 +1,11 @@
-package chapter04
+package exercises.chapter04
 
 /**
   * Exercise 4.6: Implement Either with the interface given in the text.
   */
 sealed trait Either[+E, +A] {
   def map[B](f: A => B): Either[E,B]
-  def flatmap[EE >: E, B](f: A => Either[EE, B]): Either[EE, B]
+  def flatMap[EE >: E, B](f: A => Either[EE, B]): Either[EE, B]
   def orElse[EE >: E, B >: A](b: => Either[EE, B]): Either[EE, B]
   def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] = for {a <- this; bb <- b} yield f(a, bb)
 }
@@ -15,7 +15,7 @@ sealed trait Either[+E, +A] {
   */
 case class Left[+E](value: E) extends Either[E, Nothing] {
   def map[B](f: Nothing => B) = Left(value)
-  override def flatmap[EE >: E, B](f: Nothing => Either[EE, B]): Either[EE, B] = Left(value)
+  override def flatMap[EE >: E, B](f: Nothing => Either[EE, B]): Either[EE, B] = Left(value)
   override def orElse[EE >: E, B >: Nothing](b: => Either[EE, B]) = b
 }
 
@@ -24,7 +24,7 @@ case class Left[+E](value: E) extends Either[E, Nothing] {
   */
 case class Right[+A](value: A) extends Either[Nothing, A] {
   def map[B](f: A => B) = Right(f(value))
-  def flatmap[EE >: Nothing, B](f: A => Either[EE, B]): Either[EE, B] = f(value)
+  def flatMap[EE >: Nothing, B](f: A => Either[EE, B]): Either[EE, B] = f(value)
   def orElse[EE >: Nothing, B >: A](b: => Either[EE, B]) = Right(value)
 }
 

@@ -1,4 +1,4 @@
-package chapter03
+package exercises.chapter03
 
 sealed trait Tree[+A]
 case class Leaf[A](value: A) extends Tree[A]

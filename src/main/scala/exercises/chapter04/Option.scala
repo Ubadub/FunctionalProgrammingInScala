@@ -1,4 +1,4 @@
-package chapter04
+package exercises.chapter04
 
 /**
   * Exercise 4.1: Implement Option with the interface given in the text.
@@ -34,16 +34,15 @@ object OptionFunctions {
     else Some(xs.sum / xs.length)
 
   /**
-    * Exercise 4.2: Calculate variance of a Sequence of Doubles using Option and flatMap
+    * Exercise 4.2: Calculate variance of a Sequence of Doubles using Option and flatMap.
     */
   def variance(xs: Seq[Double]): Option[Double] = mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
 
   /**
     * Exercise 4.3: Write a generic function that combines two Option values using a binary function; if either Option
-    * value is None, then the return value is None also
+    * value is None, then the return value is None also.
     */
-  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] = a flatMap (x => b map (y => f(a,b)))
-  // also should work: a flatMap (x => b flatMap (y => Some(f(a,b))))
+  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] = a flatMap (x => b map (y => f(x,y)))
 
   /**
     * Exercise 4.4: Convert a List of Options into one Option containing a list of all Some values in the original
