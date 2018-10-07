@@ -1,4 +1,4 @@
-package exercises.chapter03
+package chapter03
 
 sealed trait Tree[+A]
 case class Leaf[A](value: A) extends Tree[A]
@@ -47,13 +47,23 @@ object Tree {
     case Branch(left, right) => branchFunc(fold(left)(leafFunc)(branchFunc), fold(right)(leafFunc)(branchFunc))
   }
 
-  // Exercise 3.29 continued: rewrite size, maximum, depth, and map using fold.
-
+  /**
+    * Exercise 3.29 cont'd: rewrite size using fold.
+    */
   def sizeViaFold[A](t: Tree[A]): Int = fold(t)(_ => 1)(1 + _ + _)
 
+  /**
+    * Exercise 3.29 cont'd: rewrite maximum using fold.
+    */
   def maximumViaFold(t: Tree[Int]): Int = fold(t)(a => a)(_ max _)
 
-  def depthViaFold[A](t: Tree[A]): Int = fold(t)(a => 0)((b1, b2) => 1 + (b1 max b2))
+  /**
+    * Exercise 3.29 cont'd: rewrite depth using fold.
+    */
+  def depthViaFold[A](t: Tree[A]): Int = fold(t)(_ => 0)((b1, b2) => 1 + (b1 max b2))
 
-  def mapViaFold[A,B](t: Tree[A])(f: A => B): Tree[B] = fold(t)(a => Leaf(f(a)): Tree[B])((l, r) => Branch(l, r))
+  /**
+    * Exercise 3.29 cont'd: rewrite map using fold.
+    */
+  def mapViaFold[A,B](t: Tree[A])(f: A => B): Tree[B] = fold(t)(a => Leaf(f(a)): Tree[B])(Branch(_, _))
 }

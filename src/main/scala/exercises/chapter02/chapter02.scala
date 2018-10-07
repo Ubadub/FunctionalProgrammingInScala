@@ -1,9 +1,9 @@
-package exercises.chapter02
+package chapter02
 
 object chapter02 {
 
   /**
-    * Exercise 2.1: Tail recursive function to find nth Fibbonacci number (where the 0th term is 0 & 1st term is 1)
+    * Exercise 2.1: Tail recursive function to find nth Fibonacci number (where the 0th term is 0 & 1st term is 1)
     */
    def fib(n: Int): Int = {
     def go(n: Int, a: Int, b: Int): Int = {

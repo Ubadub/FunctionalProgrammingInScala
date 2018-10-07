@@ -1,4 +1,4 @@
-package exercises.chapter04
+package chapter04
 
 /**
   * Exercise 4.6: Implement Either with the interface given in the text.

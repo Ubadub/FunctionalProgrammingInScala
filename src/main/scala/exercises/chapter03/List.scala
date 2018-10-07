@@ -1,4 +1,4 @@
-package exercises.chapter03
+package chapter03
 
 import scala.annotation.tailrec
 
@@ -54,7 +54,6 @@ object List {
     */
   @tailrec
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
-    case Nil => Nil
     case Cons(h, t) if f(h) => dropWhile(t, f)
     case _ => l
   }
@@ -73,14 +72,14 @@ object List {
     case Cons(x, xs) => f(x, foldRight(xs, z)(f))
   }
 
-  def sum2(ns: List[Int]) = foldRight(ns, 0)(_ + _)
+  def sum2(ns: List[Int]): Int = foldRight(ns, 0)(_ + _)
 
-  def product2(ns: List[Double]) = foldRight(ns, 1.0)(_ * _)
+  def product2(ns: List[Double]): Double = foldRight(ns, 1.0)(_ * _)
 
   /**
     * Exercise 3.9: Calculate length of a list using foldRight
     */
-  def length[A](as: List[A]): Int = foldRight(as, 0)((_: A, sum: Int) => sum + 1)
+  def length[A](as: List[A]): Int = foldRight(as, 0)((_, sum) => sum + 1)
 
   /**
     * Exercise 3.10: Implement foldLeft, which is like foldRight but tail recursive
@@ -107,7 +106,7 @@ object List {
   def length2[A](as: List[A]): Int = foldLeft(as, 0)((acc, _) => acc + 1)
 
   /**
-    * Exercise 3.12: Write a function that reverse a List using foldLeft
+    * Exercise 3.12: Write a function that reverses a List using foldLeft
     */
   def reverse[A](l: List[A]): List[A] = foldLeft(l, Nil: List[A])((acc, h) => Cons(h, acc))
 
@@ -119,7 +118,8 @@ object List {
   /**
     * Exercise 3.13 (2): Can we implement foldLeft in terms of foldRight?
     */
-  def foldLeftByFoldRight[A,B](as: List[A], z: B)(f: (B, A) => B): B = ??? // TODO
+  def foldLeftByFoldRight[A,B](as: List[A], z: B)(f: (B, A) => B): B =
+    foldRight(as, (b: B) => b)((a, c) => b => c(f(b, a)))(z)
 
   /**
     * Exercise 3.14: Implement append in terms of foldRight or foldLeft
@@ -130,18 +130,17 @@ object List {
     * Exercise 3.15: Write a function that flattens a list of lists into a single list, with runtime proportional to the
     * total length of all the lists.
     */
-  def concat[A](l: List[List[A]]): List[A] = foldRight(l, List[A]())(append)
+  def concat[A](l: List[List[A]]): List[A] = foldRight(l, Nil: List[A])(append)
 
   /**
     * Exercise 3.16: Write a function that adds 1 to every Int in a List of Ints
     */
-  def add1(l: List[Int]): List[Int] = foldRight(l, List[Int]())((i,t) => Cons(i + 1, t))
+  def add1(l: List[Int]): List[Int] = foldRight(l, Nil: List[Int])((i,t) => Cons(i + 1, t))
 
   /**
     * Exercise 3.17: Write a function that turns each Double in a List of Doubles into a String
     */
-  def doubleListToStringList(l: List[Double]): List[String] =
-    foldRight(l, List[String]())((d, t) => Cons(d.toString, t))
+  def doubleListToStringList(l: List[Double]): List[String] = foldRight(l, List[String]())((d, t) => Cons(d.toString, t))
 
   /**
     * Exercise 3.18 (1): Write a map function to apply a function to every element of a List (while maintaining its
@@ -160,7 +159,7 @@ object List {
     * Stack-safe.
     */
   def filter[A](as: List[A])(f: A => Boolean): List[A] =
-    foldRightByFoldLeft(as, List[A]())((a, b) => if (f(a)) Cons(a, b) else b)
+    foldRightByFoldLeft(as, Nil: List[A])((a, b) => if (f(a)) Cons(a, b) else b)
 
   /**
     * Exercise 3.20: Write a flatMap function which is like map but with a function that returns a List, and which
@@ -171,7 +170,7 @@ object List {
   /**
     * Exercise 3.21: Rewrite filter using flatMap.
     */
-  def filterWithFlatMap[A](as: List[A])(f: A => Boolean) = flatMap(as)(a => if (f(a)) List(a) else Nil)
+  def filterWithFlatMap[A](as: List[A])(f: A => Boolean): List[A] = flatMap(as)(a => if (f(a)) List(a) else Nil)
 
   /**
     * Exercise 3.22: Write a function that returns a new List by adding corresponding elements from two Lists (if the
@@ -184,7 +183,7 @@ object List {
   }
 
   /**
-    * Exercise 3.22: Generalize the previous function to operate on Lists of any types and any function, not just
+    * Exercise 3.23: Generalize the previous function to operate on Lists of any types and any function, not just
     * Integers with addition
     */
   def zipWith[A,B,C](l1: List[A], l2: List[B])(f: (A, B) => C): List[C] = (l1, l2) match {
@@ -194,8 +193,8 @@ object List {
   }
 
   /**
-    * Exercise 3.22: Generalize the previous function to operate on Lists of any types and any function, not just
-    * Integers with addition
+    * Exercise 3.24: Implement hasSubsequence, a function for checking whether a List contains another List as a
+    * subsequence. Not very efficient, but tail-recursive and purely functional.
     */
   @tailrec
   def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
@@ -207,9 +206,13 @@ object List {
     }
 
     (sup, sub) match {
-      case (Nil, _) => false
       case (_, Nil) => true
+      case (Nil, _) => false
       case (Cons(hsup, tsup), Cons(hsub, tsub)) => startsWith(sup, sub) || hasSubsequence(tsup, sub)
     }
+  }
+
+  def main(args: Array[String]): Unit = {
+    print(hasSubsequence(Nil, Nil))
   }
 }

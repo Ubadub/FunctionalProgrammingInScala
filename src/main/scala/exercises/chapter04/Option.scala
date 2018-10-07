@@ -1,4 +1,7 @@
-package exercises.chapter04
+package chapter04
+
+// Hide standard library members
+import scala.{Option => _, Either => _, Some => _, None => _}
 
 /**
   * Exercise 4.1: Implement Option with the interface given in the text.
@@ -7,7 +10,7 @@ sealed trait Option[+A] {
   def map[B](f: A => B): Option[B]
   def flatMap[B](f: A => Option[B]): Option[B] = map(f) getOrElse None
   def getOrElse[B >: A](default: => B): B
-  def orElse[B >: A](ob: => Option[B]): Option[B] = this map(Some(_)) getOrElse(ob)
+  def orElse[B >: A](ob: => Option[B]): Option[B] = this map(Some(_)) getOrElse ob
   def filter(f: A => Boolean): Option[A] = flatMap(a => if (f(a)) Some(a) else None)
 }
 
@@ -20,9 +23,9 @@ case class Some[+A](get: A) extends Option[A] {
 }
 
 /**
-  * Exercise 4.1 (cont'd): Implement Option with the interface above.
+  * Exercise 4.1 (cont'd): Implement None with the interface above.
   */
-object None extends Option[Nothing] {
+case object None extends Option[Nothing] {
   def map[B](f: Nothing => B): Option[B] = this
   def getOrElse[B >: Nothing](default: => B): B = default
 }
