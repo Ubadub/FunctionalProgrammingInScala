@@ -65,6 +65,7 @@ object OptionFunctions {
     case Nil => Some(Nil)
     case h :: t => map2(f(h), traverse(t)(f))(_ :: _)
   }
+  // could also be implemented with foldRight, similar to sequence above
 
   /**
     * Exercise 4.5 (cont'd): Reimplement sequence using traverse.

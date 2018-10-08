@@ -1,5 +1,8 @@
 package chapter04
 
+// Hide standard library members
+import scala.{Option => _, Either => _, Some => _, None => _}
+
 /**
   * Exercise 4.6: Implement Either with the interface given in the text.
   */
@@ -15,8 +18,8 @@ sealed trait Either[+E, +A] {
   */
 case class Left[+E](value: E) extends Either[E, Nothing] {
   def map[B](f: Nothing => B) = Left(value)
-  override def flatMap[EE >: E, B](f: Nothing => Either[EE, B]): Either[EE, B] = Left(value)
-  override def orElse[EE >: E, B >: Nothing](b: => Either[EE, B]) = b
+  def flatMap[EE >: E, B](f: Nothing => Either[EE, B]): Either[EE, B] = Left(value)
+  def orElse[EE >: E, B >: Nothing](b: => Either[EE, B]): Either[EE, B] = b
 }
 
 /**
@@ -44,6 +47,6 @@ object EitherFunctions {
     */
   def traverse[E,A,B](as: List[A])(f: A => Either[E, B]): Either[E, List[B]] = as match {
     case Nil => Right(Nil)
-    case h :: t => (f(h) map2 traverse(t)(f)) (_ :: _)
+    case h :: t => (f(h) map2 traverse(t)(f))(_ :: _)
   }
 }
