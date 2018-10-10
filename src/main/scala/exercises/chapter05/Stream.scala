@@ -112,9 +112,18 @@ sealed trait Stream[+A] {
     * Exercise 5.7 (cont'd): Implement flatMap using foldRight.
     */
   def flatMap[B](f: A => Stream[B]): Stream[B] = foldRight(empty[B])((h, t) => f(h) append t)
+
+  /**
+    * Exercise 5.13: Use unfold to implement map
+    */
+  def mapViaUnfold[B](f: A => B): Stream[B] = unfold(this){
+    case Cons(h, t) => Some((f(h()), t()))
+    case _ => None
+  }
 }
 
 case object Empty extends Stream[Nothing]
+
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
 
 object Stream {
@@ -133,7 +142,7 @@ object Stream {
   /**
     * Exercise 5.8: Generalize ones slightly to the function constant, which returns an infinite Stream of a given value
     */
-  def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+  def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
   // Another way: more efficient b/c tail gets cached (b/c of lazy keyword)
   def constant2[A](a: A): Stream[A] = {
@@ -159,13 +168,49 @@ object Stream {
   /**
     * Exercise 5.11: Write a more general stream-building function called unfold. It takes an initial state and a
     * function for producing both the next state and the next value in the generated stream.
+    * @param z the initial state
+    *
+    * @param f the function for producing the next state and the next value
+    *
+    * @tparam A the type of each value
+    *
+    * @tparam S the type of each states
     */
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
     case Some((h, s)) => cons(h, unfold(s)(f))
     case None => empty
   }
 
+  /**
+    * Exercise 5.12: Write constant in terms of unfold.
+    */
+  def constantViaUnfold[A](a: A): Stream[A] = {
+    unfold(a)(_ => Some((a,a)))
+  }
+
+  /**
+    * Exercise 5.12 (cont'd): Write ones in terms of unfold.
+    */
+  val onesViaUnfold: Stream[Int] = constantViaUnfold(1)
+
+  /**
+    * Exercise 5.12 (cont'd): Write from in terms of unfold.
+    */
+  def fromViaUnfold(n: Int): Stream[Int] = {
+    unfold(n)(s => Some((s,s+1)))
+  }
+
+  /**
+    * Exercise 5.12 (cont'd): Write fibs in terms of unfold.
+    */
+  val fibsViaUnfold: Stream[Int] = {
+    unfold((0, 1))({
+      case (f0, f1) => Some(f0, (f1, f0+f1))
+    })
+  }
+
   def main(args: Array[String]): Unit = {
+
     val s1 = Stream('s', 't', 'r', 'e', 'a', 'm')
     val s2 = Stream('S', 'T', 'R', 'e', 'A', 'M')
 
@@ -178,8 +223,22 @@ object Stream {
     println(s2.forAll(c => c.isUpper))
     println(s2.takeWhile(c => c.isUpper).toList)
     println(s2.takeWhileViaFoldRight(c => c.isUpper).toList)
-    */
     println(fibs.take(30).toList)
+    println(constantViaUnfold(1).take(30).toList)
+    println(fromViaUnfold(10).take(30).toList)
+    println(fibs.take(30).toList)
+    println(fibsViaUnfold.take(30).toList)
+
+    println(s1.toList)
+    println(s1.mapViaUnfold(c => c.toUpper).toList)
+    println(s1.mapViaUnfold(c => c.toInt).toList)
+
+    println()
+
+    println(s2.toList)
+    println(s2.mapViaUnfold(c => c.toLower).toList)
+    println(s2.mapViaUnfold(c => c.toInt).toList)
+    */
   }
 
 }
