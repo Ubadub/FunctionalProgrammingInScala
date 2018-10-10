@@ -120,6 +120,43 @@ sealed trait Stream[+A] {
     case Cons(h, t) => Some((f(h()), t()))
     case _ => None
   }
+
+  /**
+    * Exercise 5.13 (cont'd): Use unfold to implement take
+    */
+  def takeViaUnfold(n: Int): Stream[A] = unfold((this, n)) {
+    case (Cons(h, t), i) if i > 1 => Some((h(), (t(), i-1)))
+    case (Cons(h, t), 1) => Some((h(), (empty, 0)))
+    case _ => None
+  }
+
+  /**
+    * Exercise 5.13 (cont'd): Use unfold to implement takeWhile
+    *
+    */
+  def takeWhileViaUnfold(p: A => Boolean): Stream[A] = unfold(this) {
+    case Cons(h, t) if p(h()) => Some((h(), t()))
+    case _ => None
+  }
+
+  /**
+    * Exercise 5.13 (cont'd): Use unfold to implement zipWith
+    */
+  def zipWith[B,C](s2: Stream[B])(f: (A, B) => C): Stream[C] = unfold((this, s2)) {
+    case (Cons(h1, t1), Cons(h2, t2)) => Some((f(h1(), h2()), (t1(), t2())))
+    case _ => None
+  }
+
+  /**
+    * Exercise 5.13 (cont'd): Use unfold to implement zipAll, which continues the traversal as long as either stream has
+    * more elements- it uses Option to indicate whether each stream has been exhausted.
+    */
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] = unfold((this, s2)) {
+    case (Cons(h1, t1), Cons(h2, t2)) => Some(((Some(h1()), Some(h2())), (t1(), t2())))
+    case (Cons(h1, t1), e) => Some(((Some(h1()), None), (t1(), e)))
+    case (e, Cons(h2, t2)) => Some(((None, Some(h2())), (e, t2())))
+    case _ => None
+  }
 }
 
 case object Empty extends Stream[Nothing]
@@ -213,16 +250,15 @@ object Stream {
 
     val s1 = Stream('s', 't', 'r', 'e', 'a', 'm')
     val s2 = Stream('S', 'T', 'R', 'e', 'A', 'M')
+    val s3 = Stream(1,2,3)
+    val s4 = empty
 
     /*
     println(s1.toList)
     println(s1.take(4).toList)
-    println(s1.drop(4).toList)
-    println(s2.takeWhile(c => c.isUpper).toList)
+    println(s1.drop(4).toList))
     println(s1.exists(c => c == 'E'))
     println(s2.forAll(c => c.isUpper))
-    println(s2.takeWhile(c => c.isUpper).toList)
-    println(s2.takeWhileViaFoldRight(c => c.isUpper).toList)
     println(fibs.take(30).toList)
     println(constantViaUnfold(1).take(30).toList)
     println(fromViaUnfold(10).take(30).toList)
@@ -238,6 +274,15 @@ object Stream {
     println(s2.toList)
     println(s2.mapViaUnfold(c => c.toLower).toList)
     println(s2.mapViaUnfold(c => c.toInt).toList)
+
+    println(s1.takeViaUnfold(3).toList)
+
+    println(s1.takeWhileViaUnfold(c => c > 'a').toList)
+    println(s2.takeWhile(c => c.isUpper).toList)
+    println(s2.takeWhileViaFoldRight(c => c.isUpper).toList)
+    println(s2.takeWhileViaUnfold(c => c.isUpper).toList)
+
+    println(s3.zipAll(s1).toList)
     */
   }
 
