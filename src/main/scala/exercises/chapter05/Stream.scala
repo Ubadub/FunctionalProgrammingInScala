@@ -56,7 +56,7 @@ sealed trait Stream[+A] {
     */
   def takeWhile(p: A => Boolean): Stream[A] = {
     this match {
-      case Cons(h: A,t) if p(h()) => cons(h(), t() takeWhile p)
+      case Cons(h, t) if p(h()) => cons(h(), t() takeWhile p)
       case _ => empty
     }
   }
@@ -182,6 +182,28 @@ sealed trait Stream[+A] {
     case s => Some((s, s.drop(1)))
   } append Stream(empty)
 
+  /**
+    * Exercise 5.16: Generalize tails to the function scanRight, which is like a foldRight that returns a stream of the
+    * intermediate results. Your function should reuse intermediate results so that traversing a Stream with n elements
+    * always takes time linear in n.
+    */
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] =
+    foldRight((z, Stream(z)))((a, p0) => {
+      lazy val p1 = p0
+      val b2 = f(a, p1._1)
+      (b2, cons(b2, p1._2))
+    })._2
+
+  /*
+  // TODO: Check if this implementation is as good as the one above
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] = foldRight(Stream(z))((a,b) => (a, b) match {
+    case (a, Cons(h, t)) => {
+      lazy val v = f(a, h())
+      cons(v, Cons(h, t))
+    }
+    case _ => Stream(z)
+  })
+  */
 
 }
 
@@ -272,53 +294,11 @@ object Stream {
     })
   }
 
-  def main(args: Array[String]): Unit = {
-
-    val s1 = Stream('s', 't', 'r', 'e', 'a', 'm')
-    val s2 = Stream('S', 'T', 'R', 'e', 'A', 'M')
-    val s3 = Stream(1,2,3)
-    val s4 = empty
-
-    /*
-    println(s1.toList)
-    println(s1.take(4).toList)
-    println(s1.drop(4).toList))
-    println(s1.exists(c => c == 'E'))
-    println(s2.forAll(c => c.isUpper))
-    println(fibs.take(30).toList)
-    println(constantViaUnfold(1).take(30).toList)
-    println(fromViaUnfold(10).take(30).toList)
-    println(fibs.take(30).toList)
-    println(fibsViaUnfold.take(30).toList)
-
-    println(s1.toList)
-    println(s1.mapViaUnfold(c => c.toUpper).toList)
-    println(s1.mapViaUnfold(c => c.toInt).toList)
-
-    println()
-
-    println(s2.toList)
-    println(s2.mapViaUnfold(c => c.toLower).toList)
-    println(s2.mapViaUnfold(c => c.toInt).toList)
-
-    println(s1.takeViaUnfold(3).toList)
-
-    println(s1.takeWhileViaUnfold(c => c > 'a').toList)
-    println(s2.takeWhile(c => c.isUpper).toList)
-    println(s2.takeWhileViaFoldRight(c => c.isUpper).toList)
-    println(s2.takeWhileViaUnfold(c => c.isUpper).toList)
-
-    println(s3.zipAll(s1).toList)
-
-
-    println(Stream(1,2) startsWith Stream(1,2,3))
-    println(Stream(1,2) startsWith_1 Stream(1,2,3))
-    println(empty startsWith_1 Stream(1,2,3))
-    println(Stream(1,2,3) startsWith_1 empty)
-    println(Stream(1,2,3,6) startsWith_1 Stream(1,2,3,6))
-
-    println(Stream(1,2,3).tails.map(_.toList).toList)
-    */
+  def time[R](block: => R): R = {
+    val t0 = System.nanoTime()
+    val result = block    // call-by-name
+    val t1 = System.nanoTime()
+    println("Elapsed time: " + (t1 - t0) + "ns")
+    result
   }
-
 }
