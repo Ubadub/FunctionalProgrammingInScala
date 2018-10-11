@@ -157,6 +157,32 @@ sealed trait Stream[+A] {
     case (e, Cons(h2, t2)) => Some(((None, Some(h2())), (e, t2())))
     case _ => None
   }
+
+  @tailrec
+  final def startsWith_1[A](s2: Stream[A]): Boolean = (this, s2) match {
+    case (_, Empty) => true
+    case (Cons(h1, t1), Cons(h2, t2)) => h1() == h2() && (t1() startsWith_1 t2())
+    case _ => false
+  }
+
+  /**
+    * Exercise 5.14: Implement startsWith using the functions you've written.
+    */
+  def startsWith[A](s2: Stream[A]): Boolean = zipAll(s2).takeWhile(_._2.isDefined) forAll {
+    case (h1, h2) => h1 == h2
+  }
+
+  /**
+    * Exercise 5.15: Implement tails using unfold. For a given Stream, tails returns the Stream of suffixes of the input
+    * sequence, starting with the original Stream. For example, given Stream(1,2,3), it would return
+    * Stream(Stream(1,2,3), Stream(2,3), Stream(3), Stream())
+    */
+  def tails: Stream[Stream[A]] = unfold(this) {
+    case Empty => None
+    case s => Some((s, s.drop(1)))
+  } append Stream(empty)
+
+
 }
 
 case object Empty extends Stream[Nothing]
@@ -283,6 +309,15 @@ object Stream {
     println(s2.takeWhileViaUnfold(c => c.isUpper).toList)
 
     println(s3.zipAll(s1).toList)
+
+
+    println(Stream(1,2) startsWith Stream(1,2,3))
+    println(Stream(1,2) startsWith_1 Stream(1,2,3))
+    println(empty startsWith_1 Stream(1,2,3))
+    println(Stream(1,2,3) startsWith_1 empty)
+    println(Stream(1,2,3,6) startsWith_1 Stream(1,2,3,6))
+
+    println(Stream(1,2,3).tails.map(_.toList).toList)
     */
   }
 
