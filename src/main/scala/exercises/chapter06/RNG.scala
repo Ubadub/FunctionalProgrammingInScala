@@ -168,8 +168,16 @@ object RNG {
 import State._
 
 /**
+  *
+  *
+  */
+
+/**
   * Exercise 6.10: Generalize the functions unit, map, map2, flatMap, and sequence. Add them as methods on the State
   * case class where possible.
+  *
+  * When `run` is executed, it returns some object of type `A` and the new `State` of type `S`, just like `Rand`
+  * returned an `Int` and a new `Rand`
   */
 case class State[S, +A](run: S => (A, S)) {
   def map[B](f: A => B): State[S, B] = State((s: S) => {
@@ -199,4 +207,17 @@ case class State[S, +A](run: S => (A, S)) {
   */
 object State {
   def unit[S, A](a: A): State[S, A] = State(s => (a, s))
+
+  // Combining a `List` of State transitions into a single transition.
+  def sequence[S, A](fs: List[State[S, A]]): State[S, List[A]] =
+    fs.foldRight(unit[S, List[A]](Nil))((state, stateAcc) => state.map2(stateAcc)(_ :: _))
+
+  def modify[S](f: S => S): State[S, Unit] = for {
+    s <- get // Gets the current state and assigns it to `s`.
+    _ <- set(f(s)) // Sets the new state to `f` applied to `s`.
+  } yield ()
+
+  def get[S]: State[S, S] = State(s => (s, s))
+
+  def set[S](s: S): State[S, Unit] = State(_ => ((), s))
 }
